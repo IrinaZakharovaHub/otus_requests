@@ -1,0 +1,52 @@
+from requests_html import HTMLSession
+from google import google
+
+all_links = []
+session = HTMLSession()
+step = 0
+# api_user = 'letter-zakharova'
+# key = '03.255230871:99cefa4c5f47ce56cda2047295680ed5'
+
+
+def get_y_link(url, text, number):
+    global step
+    step += 1
+    request = session.get(url)
+    all_links.append({text: url})
+    if step < number:
+        for link in request.html.find('a'):
+            if link.attrs['href'][0:4] == 'http':
+                get_y_link(link.attrs['href'], link.text, number)
+
+
+def get_g_link(q):
+    search_results = google.search(q)
+    for link in search_results:
+        all_links.append({link.name: link.link})
+
+
+# def make_query():
+site = input('Введите Y, для Яндекса, G для Google')
+query = input('Введите ваш запрос')
+save_to_file = input('Сохранить в файл? Y/N')
+
+if site == 'Y':
+    get_y_link('https://yandex.ru/search/?text=' + query, 'https://yandex.ru/search/?text=' + query, 4)
+elif site == 'G':
+    get_g_link(query)
+
+if save_to_file == 'Y':
+    with open('links.txt', 'w', encoding='utf-8') as f:
+        for link in all_links:
+            f.write(str(link) + '\n')
+        f.close()
+    print('Результаты сохранены в links.txt')
+elif save_to_file == 'N':
+    print(all_links)
+
+
+
+
+
+
+
